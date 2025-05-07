@@ -1,35 +1,40 @@
 import React, { useEffect, useState } from 'react';
+import ManageUsers from '../components/ManageUsers';
+import AssignTasks from '../components/AssignTasks';
+import ViewAllTasks from '../components/ViewAllTasks';
+import PromoteUsers from '../components/PromoteUsers';
+import ViewAssignedTasks from '../components/ViewAssignedTasks';
+import UpdateTaskStatus from '../components/UpdateTaskStatus';
+import CheckDeadlines from '../components/CheckDeadlines';
+import MarkTasksCompleted from '../components/MarkTasksCompleted';
 
 const Dashboard = () => {
   const [role, setRole] = useState(null);
-  const [username, setUsername] = useState('');
   const [activeTab, setActiveTab] = useState(0); // Track the active tab
 
   useEffect(() => {
     // Simulated user session check
     const storedRole = localStorage.getItem('role'); // 'admin' or 'user'
-    const storedName = localStorage.getItem('name'); // name of user/admin
 
     if (!storedRole) {
       window.location.href = '/login'; // Redirect to login if no role is found
     } else {
       setRole(storedRole);
-      setUsername(storedName);
     }
   }, []);
 
   const adminTabs = [
-    { title: 'Manage Users', content: 'Here you can manage users.' },
-    { title: 'Assign Tasks', content: 'Here you can assign tasks to users.' },
-    { title: 'View All Tasks', content: 'Here you can view all tasks.' },
-    { title: 'Promote or Remove Users', content: 'Here you can promote or remove users.' },
+    { title: 'Manage Users', component: <ManageUsers /> },
+    { title: 'Assign Tasks', component: <AssignTasks /> },
+    { title: 'View All Tasks', component: <ViewAllTasks /> },
+    { title: 'Promote or Remove Users', component: <PromoteUsers /> },
   ];
 
   const userTabs = [
-    { title: 'View Assigned Tasks', content: 'Here you can view your assigned tasks.' },
-    { title: 'Update Task Status', content: 'Here you can update the status of your tasks.' },
-    { title: 'Check Deadlines', content: 'Here you can check task deadlines.' },
-    { title: 'Mark Tasks as Completed', content: 'Here you can mark tasks as completed.' },
+    { title: 'View Assigned Tasks', component: <ViewAssignedTasks /> },
+    { title: 'Update Task Status', component: <UpdateTaskStatus /> },
+    { title: 'Check Deadlines', component: <CheckDeadlines /> },
+    { title: 'Mark Tasks as Completed', component: <MarkTasksCompleted /> },
   ];
 
   const tabs = role === 'admin' ? adminTabs : userTabs;
@@ -39,10 +44,9 @@ const Dashboard = () => {
   };
 
   return (
-    <div className="p-6">
-      <h1 className="text-xl font-bold text-black mb-6">Welcome, {username}</h1>
+    <div>
 
-      <div className="bg-white p-6 rounded-lg shadow-lg h-[60vh] w-full">
+      <div className=" p-4 rounded-lg bg-blue-200 shadow-lg min-h-[60vh] w-full">
         <div className="flex space-x-4 mb-4">
           {tabs.map((tab, index) => (
             <button
@@ -60,7 +64,8 @@ const Dashboard = () => {
         </div>
 
         <div className="p-4 bg-gray-100 rounded-lg">
-          <p className="text-gray-700">{tabs[activeTab].content}</p>
+          {/* Render the component for the active tab */}
+          {tabs[activeTab].component}
         </div>
       </div>
     </div>

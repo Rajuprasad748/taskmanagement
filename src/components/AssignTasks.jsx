@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 
 const CreateTask = () => {
@@ -7,7 +7,30 @@ const CreateTask = () => {
     description: '',
     dueDate: '',
     priority: 'Low',
+    assignedTo: '', // New field to store the selected user
   });
+
+  const [users, setUsers] = useState([]); // State to store the list of users
+
+  // Fetch the list of users from the backend
+  useEffect(() => {
+    const fetchUsers = async () => {
+      try {
+        const token = localStorage.getItem('token'); // Assuming user is authenticated
+        const response = await axios.get('http://localhost:5000/api/users', {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        setUsers(response.data); // Assuming the response contains an array of users
+      } catch (err) {
+        console.error(err);
+        alert('Failed to fetch users');
+      }
+    };
+
+    fetchUsers();
+  }, []);
 
   const handleChange = (e) => {
     setTask({ ...task, [e.target.name]: e.target.value });
@@ -17,7 +40,6 @@ const CreateTask = () => {
     e.preventDefault();
 
     try {
-      // Replace URL with your backend API endpoint
       const token = localStorage.getItem('token'); // Assuming user is authenticated
       const response = await axios.post('http://localhost:5000/api/tasks', task, {
         headers: {
@@ -25,10 +47,10 @@ const CreateTask = () => {
         },
       });
 
-      console.log(response)
+      console.log(response);
 
       alert('Task created successfully!');
-      setTask({ title: '', description: '', dueDate: '', priority: 'Low' });
+      setTask({ title: '', description: '', dueDate: '', priority: 'Low', assignedTo: '' });
     } catch (err) {
       console.error(err);
       alert('Failed to create task');
@@ -36,8 +58,10 @@ const CreateTask = () => {
   };
 
   return (
-    <div className="max-w-xl mx-auto p-6 bg-white shadow rounded">
-      <h2 className="text-2xl font-bold mb-4">Create New Task</h2>
+    <div className="max-w-xl mx-auto p-6 bg-white shadow rounded text-black">
+      <div className="flex justify-center items-center">
+        <h2 className="text-2xl font-bold mb-4 mx-auto">Create New Task</h2>
+      </div>
       <form onSubmit={handleSubmit} className="space-y-4">
         {/* Title */}
         <div>
@@ -89,6 +113,25 @@ const CreateTask = () => {
             <option>Low</option>
             <option>Medium</option>
             <option>High</option>
+          </select>
+        </div>
+
+        {/* Assign To */}
+        <div>
+          <label className="block font-medium">Assign To</label>
+          <select
+            name="assignedTo"
+            value={task.assignedTo}
+            onChange={handleChange}
+            required
+            className="w-full mt-1 p-2 border border-gray-300 rounded"
+          >
+            <option value="">Select a user</option>
+            {users.map((user) => (
+              <option key={user._id} value={user._id}>
+                {user.name}
+              </option>
+            ))}
           </select>
         </div>
 
